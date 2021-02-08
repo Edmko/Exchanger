@@ -46,6 +46,18 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    flavorDimensions("version")
+    productFlavors {
+        create("dev") {
+            dimension = "version"
+            buildConfigField("String", "PRIVAT_BASE_URL", "\"https://api.privatbank.ua\"")
+        }
+        create("prod") {
+            dimension = "version"
+            buildConfigField("String", "PRIVAT_BASE_URL", "\"https://api.privatbank.ua\"")
+        }
+    }
 }
 
 dependencies {
@@ -57,14 +69,14 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.2.0")
 
     //Material Design
-    implementation("com.google.android.material:material:1.2.1")
+    implementation("com.google.android.material:material:1.3.0")
 
     //Constraint
     implementation("androidx.constraintlayout:constraintlayout:2.0.4")
 
     //Hilt
-    implementation("com.google.dagger:hilt-android:2.28-alpha")
-    kapt("com.google.dagger:hilt-android-compiler:2.28-alpha")
+    implementation("com.google.dagger:hilt-android:2.31.2-alpha")
+    kapt("com.google.dagger:hilt-android-compiler:2.31.2-alpha")
     implementation("androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03")
     kapt("androidx.hilt:hilt-compiler:1.0.0-alpha03")
 
