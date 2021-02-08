@@ -22,6 +22,7 @@ abstract class BaseViewModel : ViewModel() {
     enum class State {
         INITIAL, LOADING, SUCCESS, FAILURE
     }
+
     protected val disposable = CompositeDisposable()
 
     protected fun <T> asyncSingle(): SingleTransformer<T, T> {
@@ -80,7 +81,7 @@ abstract class BaseViewModel : ViewModel() {
         val hasValue: Boolean
             get() = lastValue.get() != null
 
-        fun getSafe(fallbackValue: T) : T {
+        fun getSafe(fallbackValue: T): T {
             return if (hasValue) {
                 value
             } else {
@@ -131,12 +132,12 @@ abstract class BaseViewModel : ViewModel() {
             .publish()
             .apply { connect() }
 
-        fun compose(composer: (upstream: Observable<T>) -> ObservableSource<T>) : Call<T> {
+        fun compose(composer: (upstream: Observable<T>) -> ObservableSource<T>): Call<T> {
             observable.compose(composer)
             return this
         }
 
-        fun filter(predicate: (T) -> Boolean) : Call<T> {
+        fun filter(predicate: (T) -> Boolean): Call<T> {
             return compose {
                 val obs = Observable.wrap(it)
                 obs.filter(predicate)
@@ -180,6 +181,7 @@ abstract class BaseViewModel : ViewModel() {
     private fun <T> createTrigger(): Trigger<T> = Trigger()
 
     private fun <T> createCall(): Call<T> = Call()
+
     /**
      * Class holds Relays which get data from UseCase
      */

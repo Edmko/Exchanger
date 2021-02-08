@@ -76,7 +76,7 @@ dependencies {
 
     //Hilt
     implementation("com.google.dagger:hilt-android:2.31.2-alpha")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:${rootProject.extra["kotlin_version"]}")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.4.30")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
     kapt("com.google.dagger:hilt-android-compiler:2.31.2-alpha")
     implementation("androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03")
