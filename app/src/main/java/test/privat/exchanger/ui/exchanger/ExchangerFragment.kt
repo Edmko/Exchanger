@@ -31,6 +31,7 @@ class ExchangerFragment :
     lateinit var nbuAdapter: ExchangeAdapterNBU
 
     private var selectedPicker = Picker.PB
+
     override fun setupView() {
         with(binding) {
 
@@ -58,17 +59,16 @@ class ExchangerFragment :
     }
 
     override fun bindViewModel() {
-        viewModel.exchangeRatesPBResult.data.observable.observeOn(AndroidSchedulers.mainThread())
-            .subscribe(exchangePBRateConsumer)
+        viewModel.exchangeRatesPBResult.data bind exchangePBRateConsumer
 
-        viewModel.exchangeRatesNBUResult.data.observable.observeOn(AndroidSchedulers.mainThread())
-            .subscribe(exchangeNBURateConsumer)
+        viewModel.exchangeRatesNBUResult.data bind exchangeNBURateConsumer
     }
 
     private val exchangeNBURateConsumer = Consumer<CurrencyData> {
         nbuAdapter.fetchData(it.exchangeRate.filter { rate -> rate.purchaseRateNB != 0.0 })
         binding.itemBankPickerNBU.txtDate.text = it.date.format()
     }
+
     private val exchangePBRateConsumer = Consumer<CurrencyData> {
         pbAdapter.fetchData(it.exchangeRate.filter { rate -> rate.purchaseRatePB != 0.0 })
         binding.itemBankPickerPB.txtDate.text = it.date.format()

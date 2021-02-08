@@ -27,12 +27,12 @@ class ExchangerViewModel @Inject constructor(private val getCurrencyExchangeRate
         }
     }
 
-    fun fetchPBExchangeRate(params: String) {
+    private fun fetchPBExchangeRate(params: String) {
         getCurrencyExchangeRatesByDateUseCase.params(params)
             .subscribe(explodeTo(exchangeRatesPBResult)).autoDispose()
     }
 
-    fun fetchNBUExchangeRate(params: String) {
+    private fun fetchNBUExchangeRate(params: String) {
         getCurrencyExchangeRatesByDateUseCase.params(params)
             .subscribe(explodeTo(exchangeRatesNBUResult)).autoDispose()
     }

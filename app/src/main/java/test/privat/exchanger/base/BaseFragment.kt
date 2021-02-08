@@ -6,7 +6,10 @@ import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.viewbinding.ViewBinding
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.functions.Consumer
 
 abstract class BaseFragment<VIEW_MODEL : ViewModel, BINDING : ViewBinding>(@LayoutRes layout: Int) :
     Fragment(layout) {
@@ -33,5 +36,19 @@ abstract class BaseFragment<VIEW_MODEL : ViewModel, BINDING : ViewBinding>(@Layo
     override fun onDestroy() {
         disposables.clear()
         super.onDestroy()
+    }
+
+    private fun Disposable.autoDispose() = disposables.add(this)
+
+    infix fun <T> BaseViewModel.Data<T>.bind(consumer: (T) -> Unit) {
+        observable.observeOn(AndroidSchedulers.mainThread())
+            .subscribe(consumer)
+            .autoDispose()
+    }
+
+    infix fun <T> BaseViewModel.Data<T>.bind(consumer: Consumer<in T>) {
+        observable.observeOn(AndroidSchedulers.mainThread())
+            .subscribe(consumer)
+            .autoDispose()
     }
 }

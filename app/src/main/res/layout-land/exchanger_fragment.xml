@@ -73,12 +73,14 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent" />
 
+            <include layout="@layout/item_buy_sell"/>
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvPrivat"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
                     android:overScrollMode="never"
                     android:orientation="vertical"

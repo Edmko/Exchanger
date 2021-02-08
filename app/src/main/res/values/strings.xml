@@ -4,4 +4,7 @@
     <string name="privat_bank">ПриватБанк</string>
     <string name="exchange_rate">Курсы валют</string>
     <string name="accept">Accept</string>
+    <string name="currency">Валюта</string>
+    <string name="buy">Покупка</string>
+    <string name="sell">Продажа</string>
 </resources>
