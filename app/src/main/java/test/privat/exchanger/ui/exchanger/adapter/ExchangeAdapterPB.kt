@@ -9,6 +9,7 @@ import javax.inject.Inject
 
 class ExchangeAdapterPB @Inject constructor(): RecyclerView.Adapter<ExchangeAdapterPB.ViewHolder>() {
 
+    var findExchanger : ((String) -> Unit)? = null
     private val exchangeRates = arrayListOf<CurrencyData.ExchangeRate>()
     fun fetchData(data: List<CurrencyData.ExchangeRate>) {
         exchangeRates.clear()
@@ -25,6 +26,7 @@ class ExchangeAdapterPB @Inject constructor(): RecyclerView.Adapter<ExchangeAdap
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         with(holder) {
             with(binding) {
+                root.setOnClickListener { findExchanger?.invoke(exchangeRates[position].currency) }
                 txtCurrency.text = exchangeRates[position].currency
                 txtSell.text = String.format("%.3f",exchangeRates[position].saleRatePB)
                 txtBuy.text = String.format("%.3f",exchangeRates[position].purchaseRatePB)

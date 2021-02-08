@@ -44,6 +44,7 @@
         android:layout_width="match_parent"
         android:layout_marginTop="50dp"
         android:paddingTop="16dp"
+        android:clipChildren="false"
         android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.Guideline
@@ -80,7 +81,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
                     android:overScrollMode="never"
                     android:orientation="vertical"
@@ -93,6 +93,7 @@
         <androidx.core.widget.NestedScrollView
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:id="@+id/nestedContainer"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/gl50v"
             app:layout_constraintBottom_toBottomOf="parent"

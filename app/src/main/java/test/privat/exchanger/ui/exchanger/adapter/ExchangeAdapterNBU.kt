@@ -13,6 +13,21 @@ class ExchangeAdapterNBU @Inject constructor() :
     RecyclerView.Adapter<ExchangeAdapterNBU.ViewHolder>() {
 
     private val exchangeRates = arrayListOf<CurrencyData.ExchangeRate>()
+    private var selectedItemPos: Int? = null
+
+    fun getCurrencyPos(currency: String): Int? {
+        val item = exchangeRates.firstOrNull { it.currency == currency }
+        val pos = selectedItemPos
+        selectedItemPos = null
+        notifyItemChanged(pos ?: 0)
+        if (item != null) {
+
+            selectedItemPos = exchangeRates.indexOf(item)
+            notifyItemChanged(selectedItemPos ?: 0)
+        }
+        return selectedItemPos
+    }
+
     fun fetchData(data: List<CurrencyData.ExchangeRate>) {
         exchangeRates.clear()
         exchangeRates.addAll(data)
@@ -28,7 +43,6 @@ class ExchangeAdapterNBU @Inject constructor() :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         with(holder) {
             with(binding) {
-
                 txtCurrency.text = exchangeRates[position].currency
                 txtCurrencyValue.bindValue(position)
                 txtExchangeCost.bindCost(position)
@@ -46,11 +60,17 @@ class ExchangeAdapterNBU @Inject constructor() :
                         )
                     )
                 }
+                if (selectedItemPos == position) binding.root.setBackgroundColor(
+                    binding.root.resources.getColor(
+                        R.color.blue_light,
+                        null
+                    )
+                )
             }
         }
     }
 
-    fun TextView.bindCost(position: Int) {
+    private fun TextView.bindCost(position: Int) {
         val value = if (exchangeRates[position].saleRateNB < 1.0) 100 else 1
         text = String.format(
             "%.2f",
@@ -58,7 +78,7 @@ class ExchangeAdapterNBU @Inject constructor() :
         ) + " ${exchangeRates[position].baseCurrency}"
     }
 
-    fun TextView.bindValue(position: Int) {
+    private fun TextView.bindValue(position: Int) {
         val value = if (exchangeRates[position].saleRateNB < 1.0) 100 else 1
         text = "$value ${exchangeRates[position].currency}"
     }

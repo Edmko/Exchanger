@@ -1,19 +1,19 @@
 package test.privat.exchanger.ui.exchanger
 
+import android.content.res.Configuration
 import androidx.fragment.app.viewModels
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.functions.Consumer
 import test.privat.exchanger.R
 import test.privat.exchanger.base.BaseFragment
 import test.privat.exchanger.databinding.ExchangerFragmentBinding
 import test.privat.exchanger.domain.entities.CurrencyData
+import test.privat.exchanger.extensions.dpToPx
 import test.privat.exchanger.extensions.format
 import test.privat.exchanger.ui.datepickerdialog.DatePickerDialogFragment
 import test.privat.exchanger.ui.exchanger.adapter.ExchangeAdapterNBU
 import test.privat.exchanger.ui.exchanger.adapter.ExchangeAdapterPB
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -37,6 +37,9 @@ class ExchangerFragment :
 
             rvPrivat.adapter = pbAdapter
             rvNBU.adapter = nbuAdapter
+            pbAdapter.findExchanger = { currency ->
+                selectCurrency(currency)
+            }
 
             itemBankPickerNBU.imgCalendar.setOnClickListener {
                 selectedPicker = Picker.NBU
@@ -83,6 +86,14 @@ class ExchangerFragment :
                 Picker.PB -> itemBankPickerPB.txtDate.text = date
             }
         }
+    }
+
+    private fun selectCurrency(currency: String) {
+        val pos = nbuAdapter.getCurrencyPos(currency) ?: 0
+        binding.rvNBU.smoothScrollToPosition(pos)
+        val dy = binding.rvNBU.y.toInt() + (pos * 50).dpToPx()
+        binding.nestedContainer.smoothScrollTo(0, dy)
+
     }
 
     enum class Picker { PB, NBU }
