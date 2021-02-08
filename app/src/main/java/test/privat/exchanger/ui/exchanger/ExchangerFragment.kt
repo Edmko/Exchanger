@@ -9,6 +9,8 @@ import test.privat.exchanger.R
 import test.privat.exchanger.base.BaseFragment
 import test.privat.exchanger.databinding.ExchangerFragmentBinding
 import test.privat.exchanger.domain.entities.CurrencyData
+import test.privat.exchanger.extensions.format
+import test.privat.exchanger.ui.datepickerdialog.DatePickerDialogFragment
 import test.privat.exchanger.ui.exchanger.adapter.ExchangeAdapterNBU
 import test.privat.exchanger.ui.exchanger.adapter.ExchangeAdapterPB
 import timber.log.Timber
@@ -16,7 +18,8 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class ExchangerFragment :
-    BaseFragment<ExchangerViewModel, ExchangerFragmentBinding>(R.layout.exchanger_fragment) {
+    BaseFragment<ExchangerViewModel, ExchangerFragmentBinding>(R.layout.exchanger_fragment),
+    DatePickerDialogFragment.DatePickerDialogListener {
 
     override val binding: ExchangerFragmentBinding by viewBinding(ExchangerFragmentBinding::bind)
     override val viewModel: ExchangerViewModel by viewModels()
@@ -27,41 +30,60 @@ class ExchangerFragment :
     @Inject
     lateinit var nbuAdapter: ExchangeAdapterNBU
 
+    private var selectedPicker = Picker.PB
     override fun setupView() {
-        initAdapters()
-        with(binding) {
-            itemBankPickerNBU.imgCalendar.setOnClickListener { viewModel.fetchExchangeRate("04.02.2020") }
-            itemBankPickerPB.imgCalendar.setOnClickListener { viewModel.fetchExchangeRate("04.02.2020") }
-
-            itemBankPickerNBU.txtBank.text =getString(R.string.nbu)
-            itemBankPickerPB.txtBank.text =getString(R.string.privat_bank)
-
-            itemBankPickerNBU.txtDate.text ="04.02.2020"
-            itemBankPickerPB.txtDate.text ="04.02.2020"
-        }
-    }
-
-    private fun initAdapters() {
         with(binding) {
 
             rvPrivat.adapter = pbAdapter
             rvNBU.adapter = nbuAdapter
+
+            itemBankPickerNBU.imgCalendar.setOnClickListener {
+                selectedPicker = Picker.NBU
+                DatePickerDialogFragment().show(
+                    childFragmentManager,
+                    DatePickerDialogFragment::class.simpleName
+                )
+            }
+            itemBankPickerPB.imgCalendar.setOnClickListener {
+                selectedPicker = Picker.PB
+                DatePickerDialogFragment().show(
+                    childFragmentManager,
+                    DatePickerDialogFragment::class.simpleName
+                )
+            }
+
+            itemBankPickerNBU.txtBank.text = getString(R.string.nbu)
+            itemBankPickerPB.txtBank.text = getString(R.string.privat_bank)
         }
     }
 
     override fun bindViewModel() {
-        viewModel.exchangeRatesResult.data.observable.observeOn(AndroidSchedulers.mainThread())
-            .subscribe(exchangeRateConsumer)
+        viewModel.exchangeRatesPBResult.data.observable.observeOn(AndroidSchedulers.mainThread())
+            .subscribe(exchangePBRateConsumer)
 
-        viewModel.exchangeRatesResult.error.observable.subscribe(errorConsumer)
+        viewModel.exchangeRatesNBUResult.data.observable.observeOn(AndroidSchedulers.mainThread())
+            .subscribe(exchangeNBURateConsumer)
     }
 
-    private val errorConsumer = Consumer<String> {
-        Timber.d(it)
+    private val exchangeNBURateConsumer = Consumer<CurrencyData> {
+        nbuAdapter.fetchData(it.exchangeRate.filter { rate -> rate.purchaseRateNB != 0.0 })
+        binding.itemBankPickerNBU.txtDate.text = it.date.format()
+    }
+    private val exchangePBRateConsumer = Consumer<CurrencyData> {
+        pbAdapter.fetchData(it.exchangeRate.filter { rate -> rate.purchaseRatePB != 0.0 })
+        binding.itemBankPickerPB.txtDate.text = it.date.format()
     }
 
-    private val exchangeRateConsumer = Consumer<CurrencyData> {
-        pbAdapter.fetchData(it.exchangeRate.filter {rate -> rate.purchaseRatePB!=0.0 })
-        nbuAdapter.fetchData(it.exchangeRate.filter{rate -> rate.purchaseRateNB!=0.0})
+
+    override fun onDateSelected(date: String) {
+        viewModel.fetchExchangeRate(date, selectedPicker)
+        with(binding) {
+            when (selectedPicker) {
+                Picker.NBU -> itemBankPickerNBU.txtDate.text = date
+                Picker.PB -> itemBankPickerPB.txtDate.text = date
+            }
+        }
     }
+
+    enum class Picker { PB, NBU }
 }
