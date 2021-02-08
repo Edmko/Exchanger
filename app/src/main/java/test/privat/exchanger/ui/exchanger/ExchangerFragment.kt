@@ -1,6 +1,6 @@
 package test.privat.exchanger.ui.exchanger
 
-import android.content.res.Configuration
+import android.app.DatePickerDialog
 import androidx.fragment.app.viewModels
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -11,15 +11,14 @@ import test.privat.exchanger.databinding.ExchangerFragmentBinding
 import test.privat.exchanger.domain.entities.CurrencyData
 import test.privat.exchanger.extensions.dpToPx
 import test.privat.exchanger.extensions.format
-import test.privat.exchanger.ui.datepickerdialog.DatePickerDialogFragment
+import test.privat.exchanger.extensions.getDateString
 import test.privat.exchanger.ui.exchanger.adapter.ExchangeAdapterNBU
 import test.privat.exchanger.ui.exchanger.adapter.ExchangeAdapterPB
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class ExchangerFragment :
-    BaseFragment<ExchangerViewModel, ExchangerFragmentBinding>(R.layout.exchanger_fragment),
-    DatePickerDialogFragment.DatePickerDialogListener {
+    BaseFragment<ExchangerViewModel, ExchangerFragmentBinding>(R.layout.exchanger_fragment) {
 
     override val binding: ExchangerFragmentBinding by viewBinding(ExchangerFragmentBinding::bind)
     override val viewModel: ExchangerViewModel by viewModels()
@@ -43,17 +42,11 @@ class ExchangerFragment :
 
             itemBankPickerNBU.imgCalendar.setOnClickListener {
                 selectedPicker = Picker.NBU
-                DatePickerDialogFragment().show(
-                    childFragmentManager,
-                    DatePickerDialogFragment::class.simpleName
-                )
+                showPickerDialog()
             }
             itemBankPickerPB.imgCalendar.setOnClickListener {
                 selectedPicker = Picker.PB
-                DatePickerDialogFragment().show(
-                    childFragmentManager,
-                    DatePickerDialogFragment::class.simpleName
-                )
+                showPickerDialog()
             }
 
             itemBankPickerNBU.txtBank.text = getString(R.string.nbu)
@@ -67,6 +60,19 @@ class ExchangerFragment :
         viewModel.exchangeRatesNBUResult.data bind exchangeNBURateConsumer
     }
 
+    private fun showPickerDialog() {
+        val dialog = DatePickerDialog(requireContext())
+        dialog.apply {
+            datePicker.maxDate = System.currentTimeMillis()
+            datePicker.minDate =
+                System.currentTimeMillis() - FOUR_YEARS_IN_MILLIS
+            setOnDateSetListener { datePicker, i, i2, i3 ->
+                onDateSelected(datePicker.getDateString())
+            }
+        }
+        dialog.show()
+    }
+
     private val exchangeNBURateConsumer = Consumer<CurrencyData> {
         nbuAdapter.fetchData(it.exchangeRate.filter { rate -> rate.purchaseRateNB != 0.0 })
         binding.itemBankPickerNBU.txtDate.text = it.date.format()
@@ -78,7 +84,7 @@ class ExchangerFragment :
     }
 
 
-    override fun onDateSelected(date: String) {
+    private fun onDateSelected(date: String) {
         viewModel.fetchExchangeRate(date, selectedPicker)
         with(binding) {
             when (selectedPicker) {
@@ -94,6 +100,10 @@ class ExchangerFragment :
         val dy = binding.rvNBU.y.toInt() + (pos * 50).dpToPx()
         binding.nestedContainer.smoothScrollTo(0, dy)
 
+    }
+
+    companion object {
+        const val FOUR_YEARS_IN_MILLIS = 126227808000L
     }
 
     enum class Picker { PB, NBU }
