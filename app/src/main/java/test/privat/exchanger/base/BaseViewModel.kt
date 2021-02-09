@@ -23,6 +23,8 @@ abstract class BaseViewModel : ViewModel() {
         INITIAL, LOADING, SUCCESS, FAILURE
     }
 
+    open fun onCreate() = Unit
+
     protected val disposable = CompositeDisposable()
 
     protected fun <T> asyncSingle(): SingleTransformer<T, T> {
@@ -208,7 +210,11 @@ abstract class BaseViewModel : ViewModel() {
             }
         }
     }
-
+    protected fun <T> Observable<T>.smartSubscribe(consumer: (T) -> Unit) {
+        subscribe {
+            consumer.invoke(it)
+        }.autoDispose()
+    }
     override fun onCleared() {
         disposable.clear()
         super.onCleared()

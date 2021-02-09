@@ -1,6 +1,7 @@
 package test.privat.exchanger.ui.exchanger
 
 import android.app.DatePickerDialog
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,11 +41,12 @@ class ExchangerFragment :
                 selectCurrency(currency)
             }
 
-            itemBankPickerNBU.imgCalendar.setOnClickListener {
+            itemBankPickerNBU.linearDateHolder.setOnClickListener {
                 selectedPicker = Picker.NBU
                 showPickerDialog()
             }
-            itemBankPickerPB.imgCalendar.setOnClickListener {
+
+            itemBankPickerPB.linearDateHolder.setOnClickListener {
                 selectedPicker = Picker.PB
                 showPickerDialog()
             }
@@ -58,6 +60,10 @@ class ExchangerFragment :
         viewModel.exchangeRatesPBResult.data bind exchangePBRateConsumer
 
         viewModel.exchangeRatesNBUResult.data bind exchangeNBURateConsumer
+
+        viewModel.loadingState bind loadingStateResult
+
+
     }
 
     private fun showPickerDialog() {
@@ -94,16 +100,21 @@ class ExchangerFragment :
         }
     }
 
+    private val loadingStateResult = Consumer<Boolean> {
+        binding.loader.cvLoader.isVisible = it.not()
+        binding.content.isVisible = it
+    }
     private fun selectCurrency(currency: String) {
         val pos = nbuAdapter.getCurrencyPos(currency) ?: 0
         binding.rvNBU.smoothScrollToPosition(pos)
-        val dy = binding.rvNBU.y.toInt() + (pos * 50).dpToPx()
+        val dy = binding.rvNBU.y.toInt() + (pos * ITEM_HEIGHT).dpToPx()
         binding.nestedContainer.smoothScrollTo(0, dy)
 
     }
 
     companion object {
         const val FOUR_YEARS_IN_MILLIS = 126227808000L
+        const val ITEM_HEIGHT = 50
     }
 
     enum class Picker { PB, NBU }

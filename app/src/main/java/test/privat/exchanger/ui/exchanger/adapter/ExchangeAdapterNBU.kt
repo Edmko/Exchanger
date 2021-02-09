@@ -1,6 +1,8 @@
 package test.privat.exchanger.ui.exchanger.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +23,6 @@ class ExchangeAdapterNBU @Inject constructor() :
         selectedItemPos = null
         notifyItemChanged(pos ?: 0)
         if (item != null) {
-
             selectedItemPos = exchangeRates.indexOf(item)
             notifyItemChanged(selectedItemPos ?: 0)
         }
@@ -46,30 +47,24 @@ class ExchangeAdapterNBU @Inject constructor() :
                 txtCurrency.text = exchangeRates[position].currency
                 txtCurrencyValue.bindValue(position)
                 txtExchangeCost.bindCost(position)
-                when (position % 2) {
-                    0 -> binding.root.setBackgroundColor(
-                        binding.root.resources.getColor(
-                            R.color.white,
-                            null
-                        )
-                    )
-                    1 -> binding.root.setBackgroundColor(
-                        binding.root.resources.getColor(
-                            R.color.honeydew,
-                            null
-                        )
-                    )
-                }
-                if (selectedItemPos == position) binding.root.setBackgroundColor(
-                    binding.root.resources.getColor(
-                        R.color.blue_light,
-                        null
-                    )
-                )
+                root.bindHolderBackgroundColor(position)
+
             }
         }
     }
 
+    private fun View.bindHolderBackgroundColor(position: Int) {
+
+        val color = when {
+            position == selectedItemPos -> R.color.blue_light
+            (position % 2) == 0 -> R.color.white
+            (position % 2) == 1 -> R.color.honeydew
+            else -> R.color.white
+        }
+        setBackgroundColor(resources.getColor(color, null))
+    }
+
+    @SuppressLint("SetTextI18n")
     private fun TextView.bindCost(position: Int) {
         val value = if (exchangeRates[position].saleRateNB < 1.0) 100 else 1
         text = String.format(
@@ -78,6 +73,7 @@ class ExchangeAdapterNBU @Inject constructor() :
         ) + " ${exchangeRates[position].baseCurrency}"
     }
 
+    @SuppressLint("SetTextI18n")
     private fun TextView.bindValue(position: Int) {
         val value = if (exchangeRates[position].saleRateNB < 1.0) 100 else 1
         text = "$value ${exchangeRates[position].currency}"

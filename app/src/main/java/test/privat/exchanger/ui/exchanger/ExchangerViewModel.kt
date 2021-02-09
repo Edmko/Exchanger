@@ -1,6 +1,7 @@
 package test.privat.exchanger.ui.exchanger
 
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.rxjava3.core.Observable
 import test.privat.exchanger.base.BaseViewModel
 import test.privat.exchanger.domain.entities.CurrencyData
 import test.privat.exchanger.domain.interactor.GetCurrencyExchangeRatesByDateUseCase
@@ -15,9 +16,24 @@ class ExchangerViewModel @Inject constructor(private val getCurrencyExchangeRate
     val exchangeRatesPBResult = UseCaseResult<CurrencyData>()
     val exchangeRatesNBUResult = UseCaseResult<CurrencyData>()
 
+    val loadingState = Data(false)
+
     init {
         fetchPBExchangeRate(Date().format())
         fetchNBUExchangeRate(Date().format())
+    }
+
+
+    override fun onCreate() {
+
+        Observable.zip(
+            exchangeRatesNBUResult.state.observable,
+            exchangeRatesPBResult.state.observable,
+            { t1, t2 ->
+                t1 != State.LOADING || t2 != State.LOADING
+            }).smartSubscribe {
+            loadingState.consume(it)
+        }
     }
 
     fun fetchExchangeRate(params: String, selectedPicker: ExchangerFragment.Picker) {

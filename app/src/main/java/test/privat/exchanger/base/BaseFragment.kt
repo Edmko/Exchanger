@@ -11,7 +11,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.functions.Consumer
 
-abstract class BaseFragment<VIEW_MODEL : ViewModel, BINDING : ViewBinding>(@LayoutRes layout: Int) :
+abstract class BaseFragment<VIEW_MODEL : BaseViewModel, BINDING : ViewBinding>(@LayoutRes layout: Int) :
     Fragment(layout) {
 
     private val disposables = CompositeDisposable()
@@ -28,6 +28,10 @@ abstract class BaseFragment<VIEW_MODEL : ViewModel, BINDING : ViewBinding>(@Layo
     abstract fun setupView()
     abstract fun bindViewModel()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.onCreate()
+    }
     override fun onStart() {
         super.onStart()
         bindViewModel()
